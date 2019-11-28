@@ -1,14 +1,23 @@
 # TODO: WHEN METHODS ARE FINISHED, SWITCH
-# PASS TO RETURN
+# PASS to RETURN
 
 class Abacus:
-    def __init__(self, goal):
+    def __init__(self, goal = 0, numColumns = 5):
         self.goal = goal
-        pass
+        columns = list()
+        for i in range(numColumns):
+            columns.append(AbacusColumn(0,0,0))
+        self.columns = columns
+        return
+
     def GetValue(self):
         """ Returns the integer value of the Abacus. 
         """
-        pass
+        outValue = 0
+        for i in range(len(self.columns)):
+            outValue += self.columns[i].GetValue() * (10 ** i)
+        return outValue
+
     def SetValue(self, inValue):
         """ Sets the integer value of the Abacus.
             The positions of the Abacus beads are adjusted to represent inValue
@@ -22,12 +31,14 @@ class Abacus:
         # We just somehow need a way to reference the columns, if you think of 
         #   a better way than a list and index value than all the better.
         # Right to left is also not necessary, could be left to right
-        pass
+        return self.columns[index].GetValue() * (10 ** index)
+
     def SetColumnValue(self, index, inValue):
         """ Sets the specified column to represent the desired inValue
             Columns are numbered from right to left starting from 0
         """
         pass
+
     def SetGoal(self, value):
         """ Sets the value that the user of the Abacus is trying to achieve.
         """
@@ -36,7 +47,7 @@ class Abacus:
         """ Returns True if the current value of the Abacus matches the goal value
             False if otherwise
         """
-        pass
+        return self.GetValue() == self.goal
     def MaxCapacity(self):
         # I don't remember what this one was for...  Maybe it returns the biggest
         #   possible number the abacus can do?  Probably not necessary.
@@ -79,4 +90,4 @@ class AbacusColumn:
         """ Returns True if the current value of the Abacus matches the goal value
             False if otherwise
         """
-        pass
+        return self.GetValue == self.goal
