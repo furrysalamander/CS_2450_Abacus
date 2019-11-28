@@ -7,6 +7,8 @@ class Question:
             idNum: str,
             abacusColumns: int,
             # TODO: I need an explanation for what these two are for
+            # These are here to give questions the ability to use different abacus bases if the want
+            # We can remove them if we are hardcoding a 5-2 abacus
             abacusNumUpper: int,
             abacusNumLower: int,
             goal: int,
@@ -26,9 +28,14 @@ class Question:
         self.enableAbacus = enableAbacus
         pass
     def GetID(self) -> str:
+        """ Returns the question's unique ID
+        """
         return self.idNum
     def SetAbacusColumns(self, count: int):
+        """ Sets the number of columns the question will have in it's Abacus
+        """
         pass
+        # We should probably remove these two now that I think about it
     def SetAbacusUpperBeads(self, count: int):
         pass
     def SetAbacusLowerBeads(self, count: int):

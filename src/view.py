@@ -66,12 +66,27 @@ class View(object):
     height = 900
     graph_win = None
     color = color_rgb(94, 69, 102)
-    highlight = color_rgb(210, 180, 244)
+    highlight = color_rgb(235, 212, 235)
     mouse_x = 0
     mouse_y = 0
 
-    buttons = list()
+    # Graphics components
+    class GUIComponent():
+        def __init__(self):
+            self.objects = dict()
+            self.buttons = dict()
 
+        def clear(self):
+            def cleardict(d):
+                for o in d.values():
+                    if(o):
+                        o.undraw()
+                    del o
+                d.clear()
+            cleardict(self.objects)
+            cleardict(self.buttons)
+
+    components = dict()    
 
 
     # ===============================================================
@@ -93,32 +108,99 @@ class View(object):
         View.graph_win.close()
 
     @staticmethod
-    def _mouse_moved(event):
-        View.mouse_x = event.x
-        View.mouse_y = event.y
-        for b in View.buttons:
-            b.update(event.x, event.y)
-
-    @staticmethod
     def mouse_clicked():
         click = View.graph_win.checkMouse()
         return not click == None
 
     @staticmethod
+    def _mouse_moved(event):
+        View.mouse_x = event.x
+        View.mouse_y = event.y
+        View._update()
+
+    @staticmethod
+    def _update():
+        for component in View.components.values():
+            for b in component.buttons.values():
+                b.update(View.mouse_x, View.mouse_y)
+
+    @staticmethod
+    def draw_login():
+        width = 1000
+        height = 700
+
+        if(not 'login' in View.components.keys()):
+            View.components['login'] = View.GUIComponent()
+        else:
+            View.components['login'].clear()
+
+        panel = Rectangle(
+                Point(user_width/2, height/2),
+                user_width,
+                height, 
+                username, 
+                'white', 
+                View.highlight, 
+                'black')
+        user.label.setSize(20)
+        title_width = View.width - user_width - 20
+        title = View.Button(
+                Point(View.width - title_width/2, height/2),
+                title_width,
+                height,
+                title,
+                'white',
+                View.highlight,
+                'black')
+        title.label.setSize(20)
+        View.components['topbar'].buttons['user'] = user
+        View.components['topbar'].buttons['title'] = title
+
+        user.draw(View.graph_win)
+        title.draw(View.graph_win)
+
+
+    @staticmethod
     def draw_topbar(username, title):
-        uwidth = 300
-        uheight = 75
-        bu = View.Button(Point(uwidth/2, uheight/2), uwidth, uheight, username, 'white', View.highlight, 'black')
-        bu.label.setSize(20)
-        twidth = View.width - uwidth - 20
-        theight = uheight
-        bt = View.Button(Point(View.width - twidth/2, theight/2), twidth, theight, title, 'white', View.highlight, 'black')
-        bu.label.setSize(20)
+        height = 75
+        user_width = 300
+        title_width = 0
+
+        if(not 'topbar' in View.components.keys()):
+            View.components['topbar'] = View.GUIComponent()
+        else:
+            View.components['topbar'].clear()
+
+        user = View.Button(
+                Point(user_width/2, height/2),
+                user_width,
+                height, 
+                username, 
+                'white', 
+                View.highlight, 
+                'black')
+        user.label.setSize(20)
+        title_width = View.width - user_width - 20
+        title = View.Button(
+                Point(View.width - title_width/2, height/2),
+                title_width,
+                height,
+                title,
+                'white',
+                View.highlight,
+                'black')
+        title.label.setSize(20)
+        View.components['topbar'].buttons['user'] = user
+        View.components['topbar'].buttons['title'] = title
+
+        user.draw(View.graph_win)
+        title.draw(View.graph_win)
+    
+    @staticmethod
+    def erase_topbar():
+        if(View.components['topbar']):
+            View.components['topbar'].clear()
         
-        View.buttons.append(bu)
-        View.buttons.append(bt)
-        bu.draw(View.graph_win)
-        bt.draw(View.graph_win)
 
 
 
@@ -127,6 +209,11 @@ if __name__ == '__main__':
     View.create_window('CS_2450_Abacus - Team 5')
     View.draw_topbar('Andrew', 'Dashboard')
     
+    while(not View.mouse_clicked()):
+        pass
+
+    View.erase_topbar()
+
     while(not View.mouse_clicked()):
         pass
 
