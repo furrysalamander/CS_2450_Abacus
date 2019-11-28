@@ -1,22 +1,32 @@
 # TODO: WHEN METHODS ARE FINISHED, SWITCH
-# PASS TO RETURN
+# PASS to RETURN
 
 class Abacus:
-    def __init__(self, goal):
+    def __init__(self, goal = 0, numColumns = 5):
         self.goal = goal
-        pass
+        columns = list()
+        for i in range(numColumns):
+            columns.append(AbacusColumn(0,0,0))
+        self.columns = columns
+        return
+
     def GetValue(self):
-        pass
+        outValue = 0
+        for i in range(len(self.columns)):
+            outValue += self.columns[i].GetValue() * (10 ** i)
+        return outValue
+
     def SetValue(self, inValue):
         pass
     def GetColumnValue(self, index):
-        pass
+        return self.columns[index].GetValue() * (10 ** index)
+
     def SetColumnValue(self, index, inValue):
         pass
     def SetGoal(self, value):
         pass
     def Validate(self):
-        pass
+        return self.GetValue() == self.goal
     def MaxCapacity(self):
         pass
 
@@ -37,4 +47,4 @@ class AbacusColumn:
     def SetGoal(self, value):
         pass
     def Validate(self):
-        pass
+        return self.GetValue == self.goal
