@@ -124,11 +124,11 @@ class View(object):
         return not click == None
     
     @staticmethod
-    def get_clicked_button():
-        for component in View.components.values():
-            for b in component.buttons.values():
-                if(b.clicked()):
-                    return b.label.getText()
+    def get_component_clicked(component):
+        if(component in View.components.keys()):
+            for key in View.components[component].buttons.keys():
+                if(View.components[component].buttons[key].clicked()):
+                    return key
         return None
 
     @staticmethod
