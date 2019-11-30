@@ -85,6 +85,18 @@ def select_user_all(conn):
     return list(map(lambda x: tuple_to_dict(x), users))
 
 @connect
+def update_user(conn, uid, name, password):
+    sql_check = 'SELECT EXISTS(SELECT 1 FROM users WHERE uid=? LIMIT 1)'
+    sql_update = 'UPDATE users SET name=?, password=? WHERE uid=?'
+    results = conn.execute(sql_check, (uid,)) # Need this comma
+    user = results.fetchone()
+    if(user[0]):
+        results.execute(sql_update, (name, password, uid))
+        conn.commit()
+    else:
+        print('User with uID {} not found in table'.format(uid))
+
+@connect
 def delete_user(conn, uid):
     uid = scrub(uid)
     sql_check = 'SELECT EXISTS(SELECT 1 FROM users WHERE uid=? LIMIT 1)'
@@ -132,6 +144,12 @@ if __name__ == '__main__':
     print(select_user(conn, '1007'))
     print('SELECTING all users')
     print(select_user_all(conn))
+
+    # Updating users
+    print('UPDATING uid 1007')
+    update_user(conn, '1007', 'Talwizard', 'youshallnotpass')
+    print('SELECTING uID 1007')
+    print(select_user(conn, '1007'))
 
     # Deleting users
     print("DELETING uid 1003")

@@ -58,7 +58,7 @@ class View(object):
         
         def clicked(self):
             return self.hover
-        
+
 
     # ===============================================================
     # Window attributes and variables
@@ -572,6 +572,8 @@ class View(object):
                 View.highlight,
                 'black')
         dash.label.setSize(17)
+        dash.label.config['anchor'] = 'w'
+        dash.label.move(buffer - dash.label.getAnchor().getX(), 0)
         practice = View.Button(
                 Point(width/2, height + buffer + button_height/2 + button_height),
                 width,
@@ -583,6 +585,8 @@ class View(object):
                 View.highlight,
                 'black')
         practice.label.setSize(17)
+        practice.label.config['anchor'] = 'w'
+        practice.label.move(buffer - practice.label.getAnchor().getX(), 0)
         tutorial = View.Button(
                 Point(width/2, height + buffer + button_height/2 + button_height*2),
                 width,
@@ -594,8 +598,10 @@ class View(object):
                 View.highlight,
                 'black')
         tutorial.label.setSize(17)
+        tutorial.label.config['anchor'] = 'w'
+        tutorial.label.move(buffer - tutorial.label.getAnchor().getX(), 0)
         logout = View.Button(
-                Point(width/2, View.height - button_height/2),
+                Point(width/2, View.height - button_height/2 - buffer),
                 width,
                 button_height,
                 'Logout',
@@ -605,6 +611,8 @@ class View(object):
                 View.highlight,
                 'black')
         logout.label.setSize(17)
+        logout.label.config['anchor'] = 'w'
+        logout.label.move(buffer - logout.label.getAnchor().getX(), 0)
 
         View.components['topbar_dropdown'].buttons['panel'] = panel
         View.components['topbar_dropdown'].objects['line'] = line
