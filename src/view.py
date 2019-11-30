@@ -86,6 +86,7 @@ class View(object):
         def __init__(self):
             self.objects = dict()
             self.buttons = dict()
+            self.active = True
 
         def clear(self):
             def cleardict(d):
@@ -140,8 +141,14 @@ class View(object):
     @staticmethod
     def _update():
         for component in View.components.values():
-            for b in component.buttons.values():
-                b.update(View.mouse_x, View.mouse_y)
+            if(component.active):
+                for b in component.buttons.values():
+                    b.update(View.mouse_x, View.mouse_y)
+
+    @staticmethod
+    def set_component_active(component, active=True):
+        if(component in View.components.keys()):
+            View.components[component].active = active
 
     @staticmethod
     def draw_abacus(center, height, numColumns, showValues=False):
@@ -528,10 +535,97 @@ class View(object):
         login.draw(View.graph_win)
 
     @staticmethod
+    def draw_topbar_dropdown():
+        height = 75
+        button_height = 60
+        width = 300
+        buffer = 20
+        line_color = color_rgb(200, 200, 200)
+
+        if(not 'topbar_dropdown' in View.components.keys()):
+            View.components['topbar_dropdown'] = View.GUIComponent()
+        else:
+            View.components['topbar_dropdown'].clear()
+
+        panel = View.Button(
+                Point(width/2, height + (View.height - height)/2),
+                width,
+                View.height - height, 
+                '', 
+                'white',
+                'white', 
+                'white', 
+                'white', 
+                'white')
+        line = Line(
+                Point(buffer, height),
+                Point(width - buffer, height))
+        line.setOutline(line_color)
+        dash = View.Button(
+                Point(width/2, height + buffer + button_height/2),
+                width,
+                button_height,
+                'Dashboard',
+                'white',
+                'white',
+                View.highlight, 
+                View.highlight,
+                'black')
+        dash.label.setSize(17)
+        practice = View.Button(
+                Point(width/2, height + buffer + button_height/2 + button_height),
+                width,
+                button_height,
+                'Abacus Practice',
+                'white',
+                'white',
+                View.highlight, 
+                View.highlight,
+                'black')
+        practice.label.setSize(17)
+        tutorial = View.Button(
+                Point(width/2, height + buffer + button_height/2 + button_height*2),
+                width,
+                button_height,
+                'Tutorial',
+                'white',
+                'white',
+                View.highlight, 
+                View.highlight,
+                'black')
+        tutorial.label.setSize(17)
+        logout = View.Button(
+                Point(width/2, View.height - button_height/2),
+                width,
+                button_height,
+                'Logout',
+                'white',
+                'white',
+                View.highlight, 
+                View.highlight,
+                'black')
+        logout.label.setSize(17)
+
+        View.components['topbar_dropdown'].buttons['panel'] = panel
+        View.components['topbar_dropdown'].objects['line'] = line
+        View.components['topbar_dropdown'].buttons['dash'] = dash
+        View.components['topbar_dropdown'].buttons['practice'] = practice
+        View.components['topbar_dropdown'].buttons['tutorial'] = tutorial
+        View.components['topbar_dropdown'].buttons['logout'] = logout
+
+        panel.draw(View.graph_win)
+        line.draw(View.graph_win)
+        dash.draw(View.graph_win)
+        practice.draw(View.graph_win)
+        tutorial.draw(View.graph_win)
+        logout.draw(View.graph_win)
+
+    @staticmethod
     def draw_topbar(username, title):
         height = 75
         user_width = 300
         title_width = 0
+        buffer = 20
 
         if(not 'topbar' in View.components.keys()):
             View.components['topbar'] = View.GUIComponent()
@@ -548,8 +642,8 @@ class View(object):
                 View.highlight, 
                 View.highlight, 
                 'black')
-        user.label.setSize(20)
-        title_width = View.width - user_width - 20
+        user.label.setSize(23)
+        title_width = View.width - user_width - buffer
         title = View.Button(
                 Point(View.width - title_width/2, height/2),
                 title_width,
@@ -560,7 +654,7 @@ class View(object):
                 View.highlight, 
                 View.highlight,
                 'black')
-        title.label.setSize(20)
+        title.label.setSize(23)
         View.components['topbar'].buttons['user'] = user
         View.components['topbar'].buttons['title'] = title
 
@@ -597,7 +691,14 @@ if __name__ == '__main__':
     while(not View.mouse_clicked()):
         pass
 
+    View.draw_topbar_dropdown()
+    View.set_component_active('abacus', False)
+
+    while(not View.mouse_clicked()):
+        pass
+
     View.erase('topbar')
     View.erase('abacus')
+    View.erase('topbar_dropdown')
 
     View.close_window()
