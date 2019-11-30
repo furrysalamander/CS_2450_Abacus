@@ -43,6 +43,46 @@ class Question:
     def Grade(self) -> int:
         pass
 
+class MultipleChoice_Q(Question):
+    def __init__(self, options: [str] = [str], answer_index: int = None):
+        self.options = options
+        self.answer_index = answer_index
+    def AddOption(self, option: str) -> int:
+        self.options.append(option)
+        return len(self.options) - 1
+    def ClearOptions(self):
+        self.options = [str]
+        self.answer_index = None
+    def SetAnswer(self, index: int) -> bool:
+        if 0 <= index < len(self.options):
+            self.answer_index = index
+            return True
+        else:
+            return False
+    def ClearAnswer(self):
+        self.answer_index = None
+
+class Arithmetic_Q(Question):
+    def __init__(self, startValue: int = None, endValue: int = None, steps: [int] = [int]):
+        self.startValue = startValue
+        self.endValue = endValue
+        self.steps = steps
+    def SetStartValue(self, value: int):
+        self.startValue = value
+    def SetEndvalue(self, value: int):
+        self.endValue = value
+    def GetNumSteps(self):
+        return len(self.steps)
+    def GetStep(self, step_index: int) -> int:
+        return self.steps[step_index]
+    def CalculateSteps(self):
+        pass
+    
+class Interpret_Q(Question):
+    pass
+class Match_Q(Question):
+    pass
+
 class Assignment:
     def __init__(
             self, 
@@ -73,8 +113,12 @@ class Assignment:
         self.showAnswers = enabled
     def SetFastGrading(self, enabled: bool):
         self.fastGrading = enabled
-    
+
     def AddQuestion(self, newQuestion: Question):
         self.listOfQuestions.append(newQuestion)
     def RemoveQuestion(self, questionID: str = None, newQuestion: Question = None) -> bool:
         pass
+
+class Test(Assignment):
+    pass
+
