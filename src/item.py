@@ -51,7 +51,7 @@ class MultipleChoice_Q(Question):
         self.options.append(option)
         return len(self.options) - 1
     def ClearOptions(self):
-        self.options = [str]
+        self.options.clear()
         self.answer_index = None
     def SetAnswer(self, index: int) -> bool:
         if 0 <= index < len(self.options):
@@ -117,7 +117,19 @@ class Assignment:
     def AddQuestion(self, newQuestion: Question):
         self.listOfQuestions.append(newQuestion)
     def RemoveQuestion(self, questionID: str = None, newQuestion: Question = None) -> bool:
-        pass
+        removeQuestionIndex = None
+        if newQuestion is None and questionID is None:
+            return False
+        if newQuestion is not None:
+            questionID = newQuestion.idNum
+        for index, oneQuestion in enumerate(self.listOfQuestions):
+            if oneQuestion.idNum == questionID:
+                removeQuestionIndex = index
+        if removeQuestionIndex is not None:
+            del self.listOfQuestions[removeQuestionIndex]
+            return True
+        else:
+            return False
 
 class Test(Assignment):
     pass
