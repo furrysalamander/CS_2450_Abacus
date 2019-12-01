@@ -208,6 +208,7 @@ class View(object):
         bgdeckbar.setOutline(View.abacus_color)
         bgdeckbar.setFill(View.abacus_color)
 
+        View.components['abacus'].objects['movdist'] = bheight/2
         View.components['abacus'].objects['bgr1'] = bgr1
         View.components['abacus'].objects['bgr2'] = bgr2
         View.components['abacus'].objects['bgc1'] = bgc1
@@ -243,7 +244,7 @@ class View(object):
                     Point(x1 + (i+1)*buffer + i*cwidth + cwidth/2 + buffer/4, y1 + height - buffer))
             bar.setFill(View.abacus_color)
             bar.setOutline(View.abacus_color)
-            View.components['abacus'].objects['colbar' + str(i)] = bar
+            View.components['abacus'].objects['colbar' + str(numColumns-1-i)] = bar
             bar.draw(View.graph_win)
 
             # Beads
@@ -266,7 +267,7 @@ class View(object):
                 oval.setOutline(bead.color_o)
                 del bead.rect
                 bead.rect = oval
-                View.components['abacus'].buttons['c' + str(i) + 'u' + str(b)] = bead
+                View.components['abacus'].buttons['c' + str(numcolumns-1-i) + 'u' + str(b)] = bead
                 bead.draw(View.graph_win)
             # Lower
             for b in range(5):

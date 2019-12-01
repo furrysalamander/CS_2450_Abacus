@@ -48,8 +48,11 @@ class Controller(object):
     def _run_practice():
         while(not View.mouse_clicked()):
             pass
+        
     def _exit_practice():
-        pass
+        View.erase('topbar')
+        View.erase('abacus')
+
     def run(state):
         pass
     
