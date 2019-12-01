@@ -12,7 +12,7 @@ import sqlite_backend
 class Model(object):
 
     def __init__(self):
-        self.connection = sqlite_backend.connect_to_db(sqlite_backend.DB_name)
+        self.connection = sqlite_backend.connect_to_db('CS_2450_Abacus_Team5')
         sqlite_backend.create_users_table(self.connection)
 
     # Users
@@ -20,6 +20,8 @@ class Model(object):
         sqlite_backend.insert_user(self.connection, user_ID, name, password)
     def get_user(self, user_ID):
         return sqlite_backend.select_user(self.connection, user_ID)
+    def get_user_all(self):
+        return sqlite_backend.select_user_all(self.connection)
     def update_user(self, user_ID, name, password):
         sqlite_backend.update_user(self.connection, user_ID, name, password)
     def delete_user(self, user_ID):

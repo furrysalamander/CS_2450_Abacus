@@ -10,9 +10,8 @@ import sqlite3
 from sqlite3 import OperationalError, IntegrityError, ProgrammingError
 import os
 
-# Setup database name and path
-DB_name = 'abacusDB'
-DB_path = os.path.dirname(os.path.realpath(__file__)) + '..\\data'
+# Setup database path
+DB_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..\\data')
 
 
 def connect_to_db(db=None):
@@ -46,8 +45,9 @@ def create_users_table(conn):
           'uid TEXT UNIQUE, name TEXT, password TEXT)'
     try:
         conn.execute(sql)
+        print('Creating new table users')
     except OperationalError as e:
-        print(e)
+        print('Using table users')
 
 @connect
 def insert_user(conn, uid, name, password):
@@ -108,7 +108,6 @@ def delete_user(conn, uid):
         conn.commit()
     else:
         print('User with uID {} not found in table'.format(uid))
-
 
 
 if __name__ == '__main__':
