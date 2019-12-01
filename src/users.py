@@ -1,4 +1,3 @@
-
 class User:
     def __init__(self, idNum: str, password: str, name: str):
         self.idNum = idNum
@@ -9,17 +8,21 @@ class User:
     def GetID(self) -> str:
         return self.idNum
 
+
 class Teacher(User):
     def __init__(self):
         return
+
 
 class Student(User):
     def __init__(self):
         return
 
+
 class Admin(User):
     def __init__(self):
         return
+
 
 class Class:
     def __init__(self, idNum: str, name: str):
@@ -28,18 +31,23 @@ class Class:
         self.listOfStudents = [Student]
         self.teacher = None
         return
+
     def GetID(self):
         return self.idNum
+
     def GetTeacher(self) -> Teacher:
         if self.teacher is not None:
             return self.teacher
         else:
             return None
+
     def SetTeacher(self, newTeacher: Teacher):
         self.classTeacher = newTeacher
         return
+
     def AddStudent(self, newStudent: Student):
         self.listOfStudents.append(newStudent)
+
     def RemoveStudent(self, studentID: str = None, newStudent: Student = None) -> bool:
         removeStudentIndex = None
         if newStudent is None and studentID is None:
