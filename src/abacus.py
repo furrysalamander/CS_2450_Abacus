@@ -30,7 +30,7 @@ class Abacus:
         newColumnIndex = 0
         while(inValue != 0):
             newColumnVals[newColumnIndex] = inValue % 10
-            inValue /= 10
+            inValue = inValue // 10
             newColumnIndex += 1
             if newColumnIndex > len(self.columns):
                 raise OverflowError
@@ -84,7 +84,7 @@ class AbacusColumn:
         """ Sets the integer value of the AbacusColumn
             The positions of the beads are adjusted to represent inValue
         """
-        self.upper = inValue / 5
+        self.upper = inValue // 5
         self.lower = inValue % 5
         return
 
