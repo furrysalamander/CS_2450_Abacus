@@ -100,6 +100,8 @@ class AbacusColumn:
             self.upper -= 1
         elif index > self.upper:
             self.upper = index
+        elif index == 1 and self.upper == 2:
+            self.upper = 0
         else:
             self.upper = 2 - index
 
@@ -112,6 +114,8 @@ class AbacusColumn:
             self.lower -= 1
         elif index > self.lower:
             self.lower = index
+        elif index == 1 and self.lower == 5:
+            self.lower = 0
         else:
             self.lower = 5 - index
 
@@ -125,3 +129,8 @@ class AbacusColumn:
             False if otherwise
         """
         return self.GetValue == self.goal
+
+    def GetUpperBeadState(self, index: int) -> bool:
+        return index < self.upper
+    def GetLowerBeadState(self, index: int) -> bool:
+        return index < self.lower

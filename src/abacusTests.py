@@ -68,6 +68,36 @@ def toggleLowerTest(abacus, column, index):
     print()
 print('\n')    # Create and display an abacus
 
+@testNum
+def beadStateTest(abacus):
+    print("Bead State Test")
+    showAbacus(abacus)
+    print("Abacus Value: {}\n".format(abacus.GetValue()))
+    print("Lower Columns:")
+    for index, column in enumerate(abacus.columns):
+        print("\nColumn: {}".format(index))
+        expectedResult = column.GetValue()%5
+        resultTally = 0
+        print("Expected Value: {}".format(expectedResult))
+        for i in range(5):
+            result = column.GetLowerBeadState(i)
+            print(i, result)
+            if result:
+                resultTally += 1
+    print("Test Passed: {}\n".format(resultTally == expectedResult))
+    print("Upper Columns:")
+    for index, column in enumerate(abacus.columns):
+        print("\nColumn: {}".format(index))
+        expectedResult = column.GetValue()//5
+        resultTally = 0
+        print("Expected Value: {}".format(expectedResult))
+        for i in range(5):
+            result = column.GetUpperBeadState(i)
+            print(i, result)
+            if result:
+                resultTally += 1
+        print("Test Passed: {}".format(resultTally == expectedResult))
+
 
 if(__name__ == '__main__'):
 
@@ -103,3 +133,7 @@ if(__name__ == '__main__'):
     toggleLowerTest(abacus, 1, 2)   # 20
     toggleLowerTest(abacus, 0, 3)   # 21
     toggleLowerTest(abacus, 0, 3)   # 22
+    toggleLowerTest(abacus, 2, 4)   # 23
+    toggleLowerTest(abacus, 2, 0)   # 24
+
+    beadStateTest(abacus)           # 25
