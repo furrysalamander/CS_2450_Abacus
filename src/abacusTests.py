@@ -46,7 +46,7 @@ if(__name__ == '__main__'):
     getValueTest(abacus)
 
     setValueTest(abacus, 555)
-    getValueTest()
+    getValueTest(abacus)
 
     setValueTest(abacus, 999)
     getValueTest(abacus)
