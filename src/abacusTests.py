@@ -68,7 +68,9 @@ if(__name__ == '__main__'):
         print('Toggling lower bead {} in column {}'.format(index, column))
         abacus.columns[column].ToggleLower(index)
         showAbacus(abacus)
+    print('\n')
 
+    toggleUpperTest(abacus, 1, 1)
     toggleUpperTest(abacus, 1, 1)
     toggleUpperTest(abacus, 0, 0)
     toggleUpperTest(abacus, 0, 1)
@@ -76,4 +78,5 @@ if(__name__ == '__main__'):
     toggleLowerTest(abacus, 0, 2)
     toggleLowerTest(abacus, 1, 4)
     toggleLowerTest(abacus, 1, 2)
+    toggleLowerTest(abacus, 0, 3)
     toggleLowerTest(abacus, 0, 3)

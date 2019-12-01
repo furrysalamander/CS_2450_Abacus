@@ -95,7 +95,10 @@ class AbacusColumn:
         # TODO: check the toggle functions because it's hard for me to visualize this without code to test it.
         # May need some slight adjustments, but I'm pretty sure that the general idea is correct.  Might just need
         # to flip < to > or something like that if it doesn't work.
-        if index < self.upper:
+        index += 1
+        if index == self.upper:
+            self.upper -= 1
+        elif index > self.upper:
             self.upper = index
         else:
             self.upper = 2 - index
@@ -104,10 +107,13 @@ class AbacusColumn:
         """ Toggles the state of the specified bead in the lower deck.
             If there are other beads in the way they also get toggled.
         """
-        if index < self.upper:
-            self.upper = index
+        index += 1
+        if index == self.lower:
+            self.lower -= 1
+        elif index > self.lower:
+            self.lower = index
         else:
-            self.upper = 2 - index
+            self.lower = 5 - index
 
     def SetGoal(self, value: int):
         """ Sets the value that the user of the AbacusColumn is trying to achieve
