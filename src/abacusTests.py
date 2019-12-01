@@ -23,60 +23,83 @@ def showAbacus(abacus):
         # Print result
         print(line)
 
-if(__name__ == '__main__'):
-    
-    # Create and display an abacus
-    abacus = Abacus(0, 3)
+def testNum(func):
+    def inner_func(*args, **kwargs):
+        testNum.test += 1
+        print('========== TEST #{} =========='.format(testNum.test))
+        return func(*args, **kwargs)
+    return inner_func
+
+# SetValue
+@testNum
+def setValueTest(abacus, value):
+    print("Changing value to {}".format(value))
+    abacus.SetValue(value)
     showAbacus(abacus)
+    print()
 
-    # SetValue
-    def setValueTest(abacus, value):
-        print("Changing value to {}".format(value))
-        abacus.SetValue(value)
+# GetValue
+@testNum
+def getValueTest(abacus):
+    print('Value of abacus is {}'.format(abacus.GetValue()))
+    showAbacus(abacus)
+    print()
+
+# ToggleUpper
+@testNum
+def toggleUpperTest(abacus, column, index):
+    print('Toggling upper bead {} in column {}'.format(index, column))
+    print('   Original')
+    showAbacus(abacus)
+    abacus.columns[column].ToggleUpper(index)
+    print('   After')
+    showAbacus(abacus)
+    print()
+
+# ToggleLower
+@testNum
+def toggleLowerTest(abacus, column, index):
+    print('Toggling lower bead {} in column {}'.format(index, column))
+    print('   Original')
+    showAbacus(abacus)
+    abacus.columns[column].ToggleLower(index)
+    print('   After')
+    showAbacus(abacus)
+    print()
+print('\n')    # Create and display an abacus
+
+
+if(__name__ == '__main__'):
+
+    abacus = Abacus(0, 3)
+    testNum.test = 0
     
-    # GetValue
-    def getValueTest(abacus):
-        print('Value of abacus is {}'.format(abacus.GetValue()))
-        showAbacus(abacus)
-    
-    setValueTest(abacus, 234)
-    getValueTest(abacus)
+    setValueTest(abacus, 234)       # 1
+    getValueTest(abacus)            # 2
 
-    setValueTest(abacus, 700)
-    getValueTest(abacus)
+    setValueTest(abacus, 700)       # 3
+    getValueTest(abacus)            # 4
 
-    setValueTest(abacus, 5)
-    getValueTest(abacus)
+    setValueTest(abacus, 5)         # 5
+    getValueTest(abacus)            # 6
 
-    setValueTest(abacus, 999)
-    getValueTest(abacus)
+    setValueTest(abacus, 999)       # 7
+    getValueTest(abacus)            # 8
 
-    setValueTest(abacus, 549)
-    getValueTest(abacus)
+    setValueTest(abacus, 549)       # 9
+    getValueTest(abacus)            # 10
 
-    setValueTest(abacus, 0)
-    getValueTest(abacus)
+    setValueTest(abacus, 0)         # 11
+    getValueTest(abacus)            # 12
 
-    # ToggleUpper
-    def toggleUpperTest(abacus, column, index):
-        print('Toggling upper bead {} in column {}'.format(index, column))
-        abacus.columns[column].ToggleUpper(index)
-        showAbacus(abacus)
+    toggleUpperTest(abacus, 1, 1)   # 13
+    toggleUpperTest(abacus, 1, 1)   # 14
+    toggleUpperTest(abacus, 0, 0)   # 15
+    toggleUpperTest(abacus, 0, 1)   # 16
+    toggleUpperTest(abacus, 0, 0)   # 17
 
-    # ToggleLower
-    def toggleLowerTest(abacus, column, index):
-        print('Toggling lower bead {} in column {}'.format(index, column))
-        abacus.columns[column].ToggleLower(index)
-        showAbacus(abacus)
-    print('\n')
-
-    toggleUpperTest(abacus, 1, 1)
-    toggleUpperTest(abacus, 1, 1)
-    toggleUpperTest(abacus, 0, 0)
-    toggleUpperTest(abacus, 0, 1)
-
-    toggleLowerTest(abacus, 0, 2)
-    toggleLowerTest(abacus, 1, 4)
-    toggleLowerTest(abacus, 1, 2)
-    toggleLowerTest(abacus, 0, 3)
-    toggleLowerTest(abacus, 0, 3)
+    toggleLowerTest(abacus, 0, 2)   # 18
+    toggleLowerTest(abacus, 1, 4)   # 19
+    toggleLowerTest(abacus, 1, 2)   # 20
+    toggleLowerTest(abacus, 0, 3)   # 21
+    toggleLowerTest(abacus, 0, 3)   # 22
