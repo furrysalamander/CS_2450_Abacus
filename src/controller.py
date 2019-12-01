@@ -5,18 +5,12 @@
 #   Model and the View together
 #
 # ===============================================================
-PYTHONDONTWRITEBYTECODE = 0
+
 
 from model import *
 from view import *
 from users import *
 from abacus import *
-
-from enum import Enum
-
-class State(Enum):
-    NONE = 0
-    PRACTICE = 1
 
 
 class Controller(object):
@@ -26,36 +20,75 @@ class Controller(object):
         self.view = view
         self.window = False
         self.current_user = None
-        self.current_state = 0
+        self.abacus = None
+        self.state = None
+        self.state_start = dict()
+        self.state_run = dict()
+        self.state_exit = dict()
 
-    def create_program_window():
+        self.state_start['practice'] = self._start_practice
+        self.state_run['practice'] = self._run_practice
+        self.state_exit['practice'] = self._exit_practice
+
+    def create_window(self):
         self.view.create_window('CS_2450_Abacus - Team 5')
         self.window = True
 
-    def ensure_window(func):
-        def inner_func(*args, **kwargs):
-            if not self.window:
-                self.create_program_window()
-            return func(*args, **kwargs)
-        return inner_func
-    
+    def close_window(self):
+        if(self.window is True):
+            self.window = False
+            self.view.close_window()
+
     # ===============================================================
     # State Execution
-    def _start_practice():
+
+    def run(self, state):
+        if(self.state is not state):
+            print('Current: {}  Next: {}'.format(self.state, state))
+        if(state is '_exit_'):
+            if(self.state is not None):
+                self.state_exit[self.state]()
+            return None
+        if(self.state is not state):
+            if(self.state is not None):
+                self.state_exit[self.state]()
+            self.state_start[state]()
+        self.state = state
+
+        return self.state_run[state]()
+
+    def cleanup(self):
+        if(self.state is not None):
+            self.state_exit[self.state]()
+            self.state = None
+    
+    # Practice
+    def _start_practice(self):
         View.draw_topbar('Andrew', 'Abacus Practice')
         View.draw_abacus(Point(View.width/2, 400), 500, 7, True)
+        self.abacus = Abacus(0, 7)
 
-    def _run_practice():
-        while(not View.mouse_clicked()):
-            pass
-        
-    def _exit_practice():
+    def _run_practice(self):
+        # Check abacus beads 
+        if(View.mouse_clicked()):
+            clicked = View.get_component_clicked('abacus')
+            if(clicked):
+                upper, col, pos = View.bead_to_column_index(clicked)
+                if(upper):
+                    print('Upper bead in column {} position {} was clicked'.format(col, pos))
+                    # Move beads
+                else:
+                    print('Lower bead in column {} position {} was clicked'.format(col, pos))
+                    # Move beads
+            clicked = View.get_component_clicked('topbar')
+            if(clicked):
+                return '_exit_'
+        return 'practice'
+
+    def _exit_practice(self):
         View.erase('topbar')
         View.erase('abacus')
 
-    def run(state):
-        pass
-    
     # ===============================================================
     # Data control
     def is_user_saved(self, user):
@@ -76,28 +109,40 @@ class Controller(object):
         return self.model.get_user_all()
 
 
+
 if(__name__ == '__main__'):
     c = Controller(Model(), View())
 
-    userA = Student()
-    userA.idnum = '1234'
-    userA.name = 'Cloud'
-    userA.password = 'midgar4life'
+    # ===============================================================
+    # Model Tests
+#    userA = Student()
+#    userA.idnum = '1234'
+#    userA.name = 'Cloud'
+#    userA.password = 'midgar4life'
 
-    userB = Teacher()
-    userB.idnum = '0256'
-    userB.name = 'Aerith'
-    userB.password = 'flowergirl'
+#    userB = Teacher()
+#    userB.idnum = '0256'
+#    userB.name = 'Aerith'
+#    userB.password = 'flowergirl'
 
-    userC = Admin()
-    userC.idnum = '4554'
-    userC.name = 'Tifa'
-    userC.password = '1-2-punch'
+#    userC = Admin()
+#    userC.idnum = '4554'
+#    userC.name = 'Tifa'
+#    userC.password = '1-2-punch'
 
-    c.save_user(userA)
-    c.save_user(userB)
-    c.save_user(userC)
-    print(c.load_user('332'))
-    print(c.load_user_all())
+#    c.save_user(userA)
+#    c.save_user(userB)
+#    c.save_user(userC)
+#    print(c.load_user('332'))
+#    print(c.load_user_all())#
 
-    
+    # ===============================================================
+    # Practice Tests
+    c.create_window()
+
+    state = 'practice'
+    while(state is not None):
+        state = c.run(state)
+        pass
+
+    c.close_window()

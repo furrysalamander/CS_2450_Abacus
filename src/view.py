@@ -84,6 +84,7 @@ class View(object):
     # Graphics components
     class GUIComponent():
         def __init__(self):
+            self.data = dict()
             self.objects = dict()
             self.buttons = dict()
             self.active = True
@@ -151,6 +152,15 @@ class View(object):
             View.components[component].active = active
 
     @staticmethod
+    def bead_to_column_index(key):
+        if(key[0] is 'c'):
+            if(key[2] is 'u'):
+                return True, int(key[1]), int(key[3])
+            else:
+                return False, int(key[1]), int(key[3])
+
+
+    @staticmethod
     def draw_abacus(center, height, numColumns, showValues=False):
         buffer = height*0.04
         cwidth = height*0.15
@@ -208,7 +218,7 @@ class View(object):
         bgdeckbar.setOutline(View.abacus_color)
         bgdeckbar.setFill(View.abacus_color)
 
-        View.components['abacus'].objects['movdist'] = bheight/2
+        View.components['abacus'].data['movdist'] = bheight/2
         View.components['abacus'].objects['bgr1'] = bgr1
         View.components['abacus'].objects['bgr2'] = bgr2
         View.components['abacus'].objects['bgc1'] = bgc1
@@ -267,7 +277,7 @@ class View(object):
                 oval.setOutline(bead.color_o)
                 del bead.rect
                 bead.rect = oval
-                View.components['abacus'].buttons['c' + str(numcolumns-1-i) + 'u' + str(b)] = bead
+                View.components['abacus'].buttons['c' + str(numColumns-1-i) + 'u' + str(b)] = bead
                 bead.draw(View.graph_win)
             # Lower
             for b in range(5):
@@ -288,7 +298,7 @@ class View(object):
                 oval.setOutline(bead.color_o)
                 del bead.rect
                 bead.rect = oval
-                View.components['abacus'].buttons['c' + str(i) + 'l' + str(b)] = bead
+                View.components['abacus'].buttons['c' + str(numColumns-1-i) + 'l' + str(b)] = bead
                 bead.draw(View.graph_win)
             # Textboxes
             if(showValues):
@@ -307,8 +317,8 @@ class View(object):
                 text.setSize(size)
                 text.setStyle('bold')
 
-                View.components['abacus'].objects['c' + str(i) + 'textbox'] = box
-                View.components['abacus'].objects['c' + str(i) + 'text'] = text
+                View.components['abacus'].objects['c' + str(numColumns-1-i) + 'textbox'] = box
+                View.components['abacus'].objects['c' + str(numColumns-1-i) + 'text'] = text
 
                 box.draw(View.graph_win)
                 text.draw(View.graph_win)
