@@ -100,7 +100,7 @@ class AbacusColumn:
             self.upper -= 1
         elif index > self.upper:
             self.upper = index
-        elif index == 1 and self.upper != 2:
+        elif index == 1 and self.upper != 0:
             self.upper = 0
         else:
             self.upper = 2 - index
@@ -112,10 +112,12 @@ class AbacusColumn:
         index += 1
         if index == self.lower:
             self.lower -= 1
-        elif index == 1 and self.lower != 0:
-            self.lower = 0
         elif index > self.lower:
             self.lower = index
+        elif index == 1 and self.lower != 0:
+            self.lower = 0
+        elif index == 2 and self.lower > index:
+            self.lower = 1
         else:
             self.lower = 5 - index
 
