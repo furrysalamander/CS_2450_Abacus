@@ -128,7 +128,7 @@ if(__name__ == '__main__'):
     toggleUpperTest(abacus, 0, 1)   # 16
     toggleUpperTest(abacus, 0, 0)   # 17
 
-    toggleLowerTest(abacus, 0, 2)   # 18
+    toggleLowerTest(abacus, 0, 0)   # 18
     toggleLowerTest(abacus, 1, 4)   # 19
     toggleLowerTest(abacus, 1, 2)   # 20
     toggleLowerTest(abacus, 0, 3)   # 21
