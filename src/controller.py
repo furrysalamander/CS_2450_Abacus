@@ -20,7 +20,8 @@ class Controller(object):
         self.view = view
         self.window = False
         self.current_user = None
-        self.abacus = None
+        self.abacus_cur = None
+        self.abacus_next = None
         self.state = None
         self.state_start = dict()
         self.state_run = dict()
@@ -38,6 +39,7 @@ class Controller(object):
         if(self.window is True):
             self.window = False
             self.view.close_window()
+
 
     # ===============================================================
     # State Execution
@@ -62,57 +64,73 @@ class Controller(object):
             self.state_exit[self.state]()
             self.state = None
     
+
+    # Abacus
+    def _update_bead(self, bead_name, old, new):
+        if(old is not new):
+            dist = self.view.components['abacus'].data['movdist']
+            bead = self.view.components['abacus'].buttons[bead_name]
+            if(new):
+                dist = -1*dist
+            if(bead_name[2] is 'u'):
+                dist = -1*dist
+            print('    Bead: {}  Old: {}  New: {}  Dist: {}'.format(bead_name, old, new, dist))
+            bead.label.move(0, dist)
+            bead.rect.move(0, dist)
+            bead.ymin += dist
+            bead.ymax += dist
+    
+    def _update_abacus(self):
+        for c in range(len(self.abacus_cur.columns)):
+            print('Updating column {}...'.format(c))
+            column_cur = self.abacus_cur.columns[c]
+            column_next = self.abacus_next.columns[c]
+            print('  Old Value: {}  Old Upper: {}  Old Lower: {}'\
+                    .format(column_cur.GetValue(), column_cur.upper, column_cur.lower))
+            print('  New Value: {}  New Upper: {}  New Lower: {}'\
+                    .format(column_next.GetValue(), column_next.upper, column_next.lower))
+            # Move GUI beads
+            for i in range(2):
+                old = column_cur.GetUpperBeadState(i)
+                new = column_next.GetUpperBeadState(i)
+                self._update_bead('c' + str(c) + 'u' + str(i), old, new)
+            for i in range(5):
+                old = column_cur.GetLowerBeadState(i)
+                new = column_next.GetLowerBeadState(i)
+                self._update_bead('c' + str(c) + 'l' + str(i), old, new)
+            # Update columns cur and next
+            column_cur.upper = column_next.upper
+            column_cur.lower = column_next.lower
+            # Update text
+            text = self.view.components['abacus'].objects['c' + str(c) + 'text']
+            if(text):
+                text.setText(str(column_next.GetValue()))
+
+    def _handle_abacus_click(self, clicked):
+        upper, col, pos = View.bead_to_column_index(clicked)
+        if(upper):
+            print('Upper bead in column {} position {} was clicked'.format(col, pos))
+            self.abacus_next.columns[col].ToggleUpper(pos)
+        else:
+            print('Lower bead in column {} position {} was clicked'.format(col, pos))
+            self.abacus_next.columns[col].ToggleLower(pos)
+        print('  New column value: {}'.format(self.abacus_next.columns[col].GetValue()))
+
+
     # Practice
     def _start_practice(self):
         View.draw_topbar('Andrew', 'Abacus Practice')
         View.draw_abacus(Point(View.width/2, 400), 500, 7, True)
-        self.abacus = Abacus(0, 7)
+        self.abacus_cur = Abacus(0, 7)
+        self.abacus_next = Abacus(0, 7)
 
     def _run_practice(self):
-        def move_bead(bead_name, old, new):
-            if(old is not new):
-                dist = self.view.components['abacus'].data['movdist']
-                bead = self.view.components['abacus'].buttons[bead_name]
-                if(new):
-                    dist = -1*dist
-                if(bead_name[2] is 'u'):
-                    dist = -1*dist
-                print('    Bead: {}  Old: {}  New: {}  Dist: {}'.format(bead_name, old, new, dist))
-                bead.label.move(0, dist)
-                bead.rect.move(0, dist)
-                bead.ymin += dist
-                bead.ymax += dist
         # Check abacus beads 
         if(View.mouse_clicked()):
             clicked = View.get_component_clicked('abacus')
             if(clicked):
-                upper, col, pos = View.bead_to_column_index(clicked)
-                column = AbacusColumn(2, 5)
-                column.upper = self.abacus.columns[col].upper
-                column.lower = self.abacus.columns[col].lower
-                print()
-                if(upper):
-                    print('Upper bead in column {} position {} was clicked'.format(col, pos))
-                    self.abacus.columns[col].ToggleUpper(pos)
-                else:
-                    print('Lower bead in column {} position {} was clicked'.format(col, pos))
-                    self.abacus.columns[col].ToggleLower(pos)
-                print('  Old Value: {}  Old Upper: {}  Old Lower: {}'\
-                        .format(column.GetValue(), column.upper, column.lower))
-                print('  New Value: {}  New Upper: {}  New Lower: {}'\
-                        .format(self.abacus.columns[col].GetValue(),
-                                self.abacus.columns[col].upper,
-                                self.abacus.columns[col].lower))
-                for i in range(2):
-                    old = column.GetUpperBeadState(i)
-                    new = self.abacus.columns[col].GetUpperBeadState(i)
-                    move_bead('c' + str(col) + 'u' + str(i), old, new)
-                for i in range(5):
-                    old = column.GetLowerBeadState(i)
-                    new = self.abacus.columns[col].GetLowerBeadState(i)
-                    move_bead('c' + str(col) + 'l' + str(i), old, new)
-                self.view.components['abacus'].objects['c' + str(col) + 'text']\
-                        .setText(str(self.abacus.columns[col].GetValue()))
+                self._handle_abacus_click(clicked)
+                self._update_abacus()
             clicked = View.get_component_clicked('topbar')
             if(clicked):
                 return '_exit_'
@@ -121,6 +139,7 @@ class Controller(object):
     def _exit_practice(self):
         View.erase('topbar')
         View.erase('abacus')
+
 
     # ===============================================================
     # Data control

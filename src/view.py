@@ -6,12 +6,18 @@
 # ===============================================================
 
 
+
 # Ensure access to lib folder
 import sys
 sys.path.insert(1, '../lib')
 
 # Import graphics library
 from graphics import *
+
+# Ensure access to image folder
+import os
+PATH = os.path.dirname(os.path.abspath(__file__))
+
 
 
 class View(object):
@@ -75,11 +81,11 @@ class View(object):
     #color = color_rgb(94, 69, 102)
     #highlight = color_rgb(235, 212, 235)
 # Green
-    color = color_rgb(46, 105, 66)
-    highlight = color_rgb(200, 232, 210)
+    #color = color_rgb(46, 105, 66)
+    #highlight = color_rgb(200, 232, 210)
 # Blue
-    #color = color_rgb(41, 68, 117)
-    #highlight = color_rgb(181, 199, 232)
+    color = color_rgb(41, 68, 117)
+    highlight = color_rgb(181, 199, 232)
 
     # Graphics components
     class GUIComponent():
@@ -88,6 +94,7 @@ class View(object):
             self.objects = dict()
             self.buttons = dict()
             self.active = True
+            self.sub = list()
 
         def clear(self):
             def cleardict(d):
@@ -96,8 +103,12 @@ class View(object):
                         o.undraw()
                     del o
                 d.clear()
+            self.data.clear()
             cleardict(self.objects)
             cleardict(self.buttons)
+            self.active = True
+            self.sub = list()
+            
 
     components = dict()    
 
@@ -159,13 +170,106 @@ class View(object):
             else:
                 return False, int(key[1]), int(key[3])
 
+    @staticmethod
+    def draw_tutorial(prev, next, text, text_x=0, text_y=0, text_width=0, abacus_x=-1, \
+                      abacus_y=-1, abacus_height=-1, abacus_columns=7, \
+                      abacus_values=False, abacus_enabled=False):
+        buffer = 100
+        x1, x2 = buffer, View.width - buffer
+        y1, y2 = 75 + buffer, View.height - buffer
+        rounding = 25
+
+        if(not 'tutorial' in View.components.keys()):
+            View.components['tutorial'] = View.GUIComponent()
+        else:
+            View.components['tutorial'].clear()
+
+        # Background
+        bgr1 = Rectangle(
+                Point(x1 + rounding, y1),
+                Point(x2 - rounding, y2))
+        bgr1.setOutline('white')
+        bgr1.setFill('white')
+        bgr2 = Rectangle(
+                Point(x1, y1 + rounding),
+                Point(x2, y2 - rounding))
+        bgr2.setOutline('white')
+        bgr2.setFill('white')
+        bgc1 = Circle(
+                Point(x1 + rounding, y1 + rounding),
+                rounding)
+        bgc1.setOutline('white')
+        bgc1.setFill('white')
+        bgc2 = Circle(
+                Point(x2 - rounding, y1 + rounding),
+                rounding)
+        bgc2.setOutline('white')
+        bgc2.setFill('white')
+        bgc3 = Circle(
+                Point(x1 + rounding, y2 - rounding),
+                rounding)
+        bgc3.setOutline('white')
+        bgc3.setFill('white')
+        bgc4 = Circle(
+                Point(x2 - rounding, y2 - rounding),
+                rounding)
+        bgc4.setOutline('white')
+        bgc4.setFill('white')
+        # clipart
+        image = Image(
+                Point(0, 0),
+                PATH + '\\..\\image\\kid.png')
+        image_width = image.getWidth()
+        image_height = image.getHeight()
+        image_x = View.width - image_width/2
+        image_y = View.height - image_height/2
+        image.move(image_x, image_y)
+        # Text
+        textobj = Text(
+                Point(x1 + 2*rounding + text_x, y1 + 2*rounding + text_y),
+                text)
+        textobj.setSize(17)
+        textobj.config['anchor'] = 'nw'
+        textobj.config['justify'] = 'left'
+        if(text_width > 0):
+            textobj.config['width'] = text_width
+        else:
+            textobj.config['width'] = x2 - x1 - 4*rounding
+
+        View.components['tutorial'].objects['bgr1'] = bgr1
+        View.components['tutorial'].objects['bgr2'] = bgr2
+        View.components['tutorial'].objects['bgc1'] = bgc1
+        View.components['tutorial'].objects['bgc2'] = bgc2
+        View.components['tutorial'].objects['bgc3'] = bgc3
+        View.components['tutorial'].objects['bgc4'] = bgc4
+        View.components['tutorial'].objects['image'] = image
+        View.components['tutorial'].objects['text'] = textobj
+
+        bgr1.draw(View.graph_win)
+        bgr2.draw(View.graph_win)
+        bgc1.draw(View.graph_win)
+        bgc2.draw(View.graph_win)
+        bgc3.draw(View.graph_win)
+        bgc4.draw(View.graph_win)
+        image.draw(View.graph_win)
+        textobj.draw(View.graph_win)
+
+        # Abacus
+        if(abacus_x >= 0 and abacus_y >= 0 and abacus_height > 0 and abacus_columns > 0):
+            View.draw_abacus(Point(x1 + abacus_x, y1 + abacus_y),
+                    abacus_height,
+                    abacus_columns,
+                    abacus_values)
+            View.set_component_active('abacus', abacus_enabled)
+            View.components['tutorial'].sub.append('abacus')
 
     @staticmethod
     def draw_abacus(center, height, numColumns, showValues=False):
         buffer = height*0.04
-        cwidth = height*0.15
+        cwidth = height*0.12
         twidth = cwidth*numColumns + buffer*(numColumns+1)
-        bheight = (height - buffer*3)/8
+        gap_bead_ratio = 1.0
+        bheight = (height - buffer*3)/(7 + 2*gap_bead_ratio)
         x1 = center.getX() - twidth/2
         y1 = center.getY() - height/2
         x2 = x1 + twidth
@@ -213,12 +317,12 @@ class View(object):
         bghole.setOutline('white')
         bghole.setFill('white')
         bgdeckbar = Rectangle(
-                Point(x1, y1 + buffer + 2.5*bheight),
-                Point(x2, y1 + 2*buffer + 2.5*bheight))
+                Point(x1, y1 + buffer + (2 + gap_bead_ratio)*bheight),
+                Point(x2, y1 + 2*buffer + (2 + gap_bead_ratio)*bheight))
         bgdeckbar.setOutline(View.abacus_color)
         bgdeckbar.setFill(View.abacus_color)
 
-        View.components['abacus'].data['movdist'] = bheight/2
+        View.components['abacus'].data['movdist'] = bheight * gap_bead_ratio
         View.components['abacus'].objects['bgr1'] = bgr1
         View.components['abacus'].objects['bgr2'] = bgr2
         View.components['abacus'].objects['bgc1'] = bgc1
@@ -683,9 +787,16 @@ class View(object):
     @staticmethod
     def erase(name):
         if(View.components[name]):
+            print('Erasing component "{}"'.format(name))
+            old = list()
+            for s in View.components[name].sub:
+                print('  Found sub-component "{}"'.format(s))
+                old.append(s)
+            View.components[name].sub.clear()
+            for s in old:
+                View.erase(s)
             View.components[name].clear()
         
-
 
 
 # ===============================================================
@@ -716,8 +827,25 @@ if __name__ == '__main__':
     while(not View.mouse_clicked()):
         pass
 
-    View.erase('topbar')
-    View.erase('abacus')
     View.erase('topbar_dropdown')
+    View.erase('abacus')
+    View.draw_tutorial(False, False, 
+            'Welcome students! Behold--the UVBacus! \nThis is an interactive abacus that is a great way to expand your math skills in a fun and exciting way. \nIt is a whole lot of fun being able to use an abacus and this tutorial will teach you how to do addition and subtraction using the exchange method. The abacus will surely make math fun and will provide a neat way to learn the math!',
+            0,
+            0,
+            0,
+            400,
+            400,
+            200,
+            7)
+
+    while(not View.mouse_clicked()):
+        pass
+
+    View.erase('topbar')
+    View.erase('tutorial')
+
+    while(not View.mouse_clicked()):
+        pass
 
     View.close_window()
