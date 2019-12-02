@@ -277,7 +277,7 @@ class View(object):
                 oval.setOutline(bead.color_o)
                 del bead.rect
                 bead.rect = oval
-                View.components['abacus'].buttons['c' + str(numColumns-1-i) + 'u' + str(b)] = bead
+                View.components['abacus'].buttons['c' + str(numColumns-1-i) + 'u' + str(1-b)] = bead
                 bead.draw(View.graph_win)
             # Lower
             for b in range(5):
@@ -298,7 +298,7 @@ class View(object):
                 oval.setOutline(bead.color_o)
                 del bead.rect
                 bead.rect = oval
-                View.components['abacus'].buttons['c' + str(numColumns-1-i) + 'l' + str(b)] = bead
+                View.components['abacus'].buttons['c' + str(numColumns-1-i) + 'l' + str(4-b)] = bead
                 bead.draw(View.graph_win)
             # Textboxes
             if(showValues):

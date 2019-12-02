@@ -136,4 +136,8 @@ if(__name__ == '__main__'):
     toggleLowerTest(abacus, 2, 4)   # 23
     toggleLowerTest(abacus, 2, 0)   # 24
 
-    beadStateTest(abacus)           # 25
+    abacus.SetValue(0)
+    toggleLowerTest(abacus, 0, 1)   # 25
+    toggleLowerTest(abacus, 0, 0)   # 26
+
+    beadStateTest(abacus)           # 27
