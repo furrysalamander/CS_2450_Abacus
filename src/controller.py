@@ -77,9 +77,11 @@ class Controller(object):
                     dist = -1*dist
                 if(bead_name[2] is 'u'):
                     dist = -1*dist
-                print('   Bead: {}  Old: {}  New: {}  Dist: {}'.format(bead_name, old, new, dist))
+                print('    Bead: {}  Old: {}  New: {}  Dist: {}'.format(bead_name, old, new, dist))
                 bead.label.move(0, dist)
                 bead.rect.move(0, dist)
+                bead.ymin += dist
+                bead.ymax += dist
         # Check abacus beads 
         if(View.mouse_clicked()):
             clicked = View.get_component_clicked('abacus')
@@ -88,15 +90,16 @@ class Controller(object):
                 column = AbacusColumn(2, 5)
                 column.upper = self.abacus.columns[col].upper
                 column.lower = self.abacus.columns[col].lower
-                print('Old Value: {}  Old Upper: {}  Old Lower: {}'\
-                        .format(column.GetValue(), column.upper, column.lower))
+                print()
                 if(upper):
                     print('Upper bead in column {} position {} was clicked'.format(col, pos))
                     self.abacus.columns[col].ToggleUpper(pos)
                 else:
                     print('Lower bead in column {} position {} was clicked'.format(col, pos))
                     self.abacus.columns[col].ToggleLower(pos)
-                print('New Value: {}  New Upper: {}  New Lower: {}'\
+                print('  Old Value: {}  Old Upper: {}  Old Lower: {}'\
+                        .format(column.GetValue(), column.upper, column.lower))
+                print('  New Value: {}  New Upper: {}  New Lower: {}'\
                         .format(self.abacus.columns[col].GetValue(),
                                 self.abacus.columns[col].upper,
                                 self.abacus.columns[col].lower))
