@@ -171,13 +171,38 @@ class View(object):
                 return False, int(key[1]), int(key[3])
 
     @staticmethod
-    def draw_tutorial(prev, next, text, text_x=0, text_y=0, text_width=0, abacus_x=-1, \
-                      abacus_y=-1, abacus_height=-1, abacus_columns=7, \
+    def _build_arrow(left, x, y, width, height):
+        lip = 0.8
+        length = width - height/2
+        if(length < 0):
+            length = 0
+        thickness = height/(2*lip + 1)
+        sign = 1
+        if(left):
+            sign = -1
+
+        points = list()
+        points.append(Point(x, y - thickness/2))
+        points.append(Point(x + sign*length, y - thickness/2))
+        points.append(Point(x + sign*length, y - thickness/2 - lip*thickness))
+        points.append(Point(x + sign*length + sign*(thickness/2 + lip*thickness), y))
+        points.append(Point(x + sign*length, y + thickness/2 + lip*thickness))
+        points.append(Point(x + sign*length, y + thickness/2))
+        points.append(Point(x, y + thickness/2))
+        return points
+
+    @staticmethod
+    def draw_tutorial(text, pagetext, prev=False, next=False, text_x=0, text_y=0, text_width=0, \
+                      abacus_x=-1, abacus_y=-1, abacus_height=-1, abacus_columns=7, \
                       abacus_values=False, abacus_enabled=False):
         buffer = 100
         x1, x2 = buffer, View.width - buffer
         y1, y2 = 75 + buffer, View.height - buffer
         rounding = 25
+        ix1, ix2 = x1 + 2*rounding, x2 - 2*rounding
+        iy1, iy2 = y1 + 2*rounding, y2 - 2*rounding
+        width = ix2 - ix1
+        height = iy2 - iy1
 
         if(not 'tutorial' in View.components.keys()):
             View.components['tutorial'] = View.GUIComponent()
@@ -226,15 +251,18 @@ class View(object):
         image.move(image_x, image_y)
         # Text
         textobj = Text(
-                Point(x1 + 2*rounding + text_x, y1 + 2*rounding + text_y),
+                Point(ix1 + text_x, iy1 + text_y),
                 text)
-        textobj.setSize(17)
+        textobj.setSize(19)
         textobj.config['anchor'] = 'nw'
         textobj.config['justify'] = 'left'
-        if(text_width > 0):
-            textobj.config['width'] = text_width
-        else:
-            textobj.config['width'] = x2 - x1 - 4*rounding
+        textobj.config['width'] = width*text_width
+        pagetextobj = Text(
+                Point(View.width/2, View.height - buffer/2),
+                pagetext)
+        pagetextobj.setSize(25)
+        pagetextobj.setTextColor('white')
+        pagetextobj.setStyle('bold')
 
         View.components['tutorial'].objects['bgr1'] = bgr1
         View.components['tutorial'].objects['bgr2'] = bgr2
@@ -244,6 +272,7 @@ class View(object):
         View.components['tutorial'].objects['bgc4'] = bgc4
         View.components['tutorial'].objects['image'] = image
         View.components['tutorial'].objects['text'] = textobj
+        View.components['tutorial'].objects['pagetext'] = pagetextobj
 
         bgr1.draw(View.graph_win)
         bgr2.draw(View.graph_win)
@@ -253,11 +282,66 @@ class View(object):
         bgc4.draw(View.graph_win)
         image.draw(View.graph_win)
         textobj.draw(View.graph_win)
+        pagetextobj.draw(View.graph_win)
 
+        # Previous and Next
+        if(prev):
+            bx = View.width/2 - buffer/2
+            by = View.height - buffer/2
+            bw = 3*buffer/4
+            bh = buffer/2
+            prevobj = View.Button(
+                    Point(bx - bw/2, by),
+                    bw,
+                    bh,
+                    '',
+                    'white',
+                    'white',
+                    View.highlight,
+                    View.highlight,
+                    'white')
+            arrow = Polygon(View._build_arrow(True,
+                                              bx,
+                                              by,
+                                              bw,
+                                              bh))
+            arrow.setOutline('white')
+            arrow.setFill('white')
+            del prevobj.rect
+            prevobj.rect = arrow
+            View.components['tutorial'].buttons['prev'] = prevobj
+            prevobj.draw(View.graph_win)
+        if(next):
+            bx = View.width/2 + buffer/2
+            by = View.height - buffer/2
+            bw = 3*buffer/4
+            bh = buffer/2
+            nextobj = View.Button(
+                    Point(bx + bw/2, by),
+                    bw,
+                    bh,
+                    '',
+                    'white',
+                    'white',
+                    View.highlight,
+                    View.highlight,
+                    'white')
+            arrow = Polygon(View._build_arrow(False,
+                                              bx,
+                                              by,
+                                              bw,
+                                              bh))
+            arrow.setOutline('white')
+            arrow.setFill('white')
+            del nextobj.rect
+            nextobj.rect = arrow
+            View.components['tutorial'].buttons['next'] = nextobj
+            nextobj.draw(View.graph_win)
+            
         # Abacus
         if(abacus_x >= 0 and abacus_y >= 0 and abacus_height > 0 and abacus_columns > 0):
-            View.draw_abacus(Point(x1 + abacus_x, y1 + abacus_y),
-                    abacus_height,
+            View.draw_abacus(Point(ix1 + abacus_x*width, iy1 + abacus_y*height),
+                    abacus_height*height,
                     abacus_columns,
                     abacus_values)
             View.set_component_active('abacus', abacus_enabled)
@@ -428,83 +512,258 @@ class View(object):
                 text.draw(View.graph_win)
 
     @staticmethod
+    def draw_create_class():
+        buffer = 150
+        text_width = 250
+        row_height = 70
+        entry_width = 400
+        x1, x2 = buffer, buffer + text_width
+        y1 = 75 + buffer
+
+        if(not 'create_class' in View.components.keys()):
+            View.components['create_class'] = View.GUIComponent()
+        else:
+            View.components['create_class'].clear()
+
+        title = Text(
+                Point(x1, y1),
+                'Create New Class')
+        title.setSize(30)
+        title.setTextColor('white')
+        title.config['anchor'] = 'w'
+        idt = Text(
+                Point(x1, y1 + row_height),
+                'Class ID:')
+        idt.setSize(20)
+        idt.setTextColor('white')
+        idt.config['anchor'] = 'w'
+        namet = Text(
+                Point(x1, y1 + row_height*2),
+                'Class Name:')
+        namet.setSize(20)
+        namet.setTextColor('white')
+        namet.config['anchor'] = 'w'
+        teachert = Text(
+                Point(x1, y1 + row_height*3),
+                'Assigned Teacher ID:')
+        teachert.setSize(20)
+        teachert.setTextColor('white')
+        teachert.config['anchor'] = 'w'
+        ide = Entry(
+                Point(x2 + entry_width/2, y1 + row_height),
+                25)
+        ide.setSize(20)
+        ide.setFill('white')
+        namee = Entry(
+                Point(x2 + entry_width/2, y1 + row_height*2),
+                25)
+        namee.setSize(20)
+        namee.setFill('white')
+        teachere = Entry(
+                Point(x2 + entry_width/2, y1 + row_height*3),
+                25)
+        teachere.setSize(20)
+        teachere.setFill('white')
+        # Create Button
+        create = View.Button(
+                Point(x2, View.height - buffer - 25),
+                200,
+                50,
+                'Create New Class',
+                'white',
+                'white',
+                View.highlight,
+                View.highlight,
+                'black')
+        create.label.setSize(20)
+
+        View.components['create_class'].objects['title'] = title
+        View.components['create_class'].objects['idt'] = idt
+        View.components['create_class'].objects['namet'] = namet
+        View.components['create_class'].objects['teachert'] = teachert
+        View.components['create_class'].objects['ide'] = ide
+        View.components['create_class'].objects['namee'] = namee
+        View.components['create_class'].buttons['teachere'] = teachere
+        View.components['create_class'].buttons['create'] = create
+
+        title.draw(View.graph_win)
+        idt.draw(View.graph_win)
+        namet.draw(View.graph_win)
+        teachert.draw(View.graph_win)
+        ide.draw(View.graph_win)
+        namee.draw(View.graph_win)
+        teachere.draw(View.graph_win)
+        create.draw(View.graph_win)
+
+    @staticmethod
     def draw_create_user():
-        width = 1000
-        height = 700
-        x = (View.width - width)/2
-        y = (View.height - height)/2
+        buffer = 150
+        text_width = 250
+        row_height = 70
+        entry_width = 400
+        x1, x2 = buffer, buffer + text_width
+        y1 = 75 + buffer
+
+        bw = 200
+        bh = row_height - 10
+        bcor = bh/2 * 0.4
+        bcir = 0.7*bcor
 
         if(not 'create_user' in View.components.keys()):
             View.components['create_user'] = View.GUIComponent()
         else:
             View.components['create_user'].clear()
 
-        panel = Rectangle(
-                Point(x, y),
-                Point(x + width, y + height))
-        panel.setFill('white')
-        panel.setOutline('white')
         title = Text(
-                Point(View.width/2, 300),
+                Point(x1, y1),
                 'Create New User')
         title.setSize(30)
+        title.setTextColor('white')
+        title.config['anchor'] = 'w'
         idt = Text(
-                Point(400, 400),
-                'User ID')
+                Point(x1, y1 + row_height),
+                'User ID:')
         idt.setSize(20)
+        idt.setTextColor('white')
+        idt.config['anchor'] = 'w'
         passt = Text(
-                Point(400, 480),
-                'Temp Password')
+                Point(x1, y1 + row_height*2),
+                'Temp Password:')
         passt.setSize(20)
+        passt.setTextColor('white')
+        passt.config['anchor'] = 'w'
+        typet = Text(
+                Point(x1, y1 + row_height*3),
+                'User Type:')
+        typet.setSize(20)
+        typet.setTextColor('white')
+        typet.config['anchor'] = 'w'
         ide = Entry(
-                Point(700, 400),
-                20)
+                Point(x2 + entry_width/2, y1 + row_height),
+                25)
         ide.setSize(20)
         ide.setFill('white')
         passe = Entry(
-                Point(700, 480),
-                20)
+                Point(x2 + entry_width/2, y1 + row_height*2),
+                25)
         passe.setSize(20)
         passe.setFill('white')
-        quit = View.Button(
-                Point(300, 700),
-                200,
-                50, 
-                'Quit', 
-                'white', 
-                'black',
+        # Student, Teacher, Admin - buttons
+        x, y = x2 + bw/2, y1 + row_height*3
+        student = View.Button(
+                Point(x, y),
+                bw,
+                bh, 
+                'Student', 
+                View.color, 
+                View.color,
+                View.highlight,
+                View.highlight,
+                'white')
+        student.label.setSize(20)
+        student.label.config['anchor'] = 'w'
+        student.label.move(bh - bw/2, 0)
+        student_co = Circle(
+                Point(x - bw/2 + bh/2, y),
+                bcor)
+        student_co.setOutline('white')
+        student_co.setFill('white')
+        student_ci = Circle(
+                Point(x - bw/2 + bh/2, y),
+                bcir)
+        student_ci.setOutline('black')
+        student_ci.setFill('black')
+        teacher = View.Button(
+                Point(x, y + bh),
+                bw,
+                bh, 
+                'Teacher', 
+                View.color, 
+                View.color,
                 View.highlight, 
-                'black',
-                'black')
-        quit.label.setSize(20)
+                View.highlight,
+                'white')
+        teacher.label.setSize(20)
+        teacher.label.config['anchor'] = 'w'
+        teacher.label.move(bh - bw/2, 0)
+        teacher_co = Circle(
+                Point(x - bw/2 + bh/2, y + bh),
+                bcor)
+        teacher_co.setOutline('white')
+        teacher_co.setFill('white')
+        teacher_ci = Circle(
+                Point(x - bw/2 + bh/2, y + bh),
+                bcir)
+        teacher_ci.setOutline('white')
+        teacher_ci.setFill('white')
+        admin = View.Button(
+                Point(x, y + bh*2),
+                bw,
+                bh, 
+                'Admin', 
+                View.color, 
+                View.color,
+                View.highlight, 
+                View.highlight,
+                'white')
+        admin.label.setSize(20)
+        admin.label.config['anchor'] = 'w'
+        admin.label.move(bh - bw/2, 0)
+        admin_co = Circle(
+                Point(x - bw/2 + bh/2, y + bh*2),
+                bcor)
+        admin_co.setOutline('white')
+        admin_co.setFill('white')
+        admin_ci = Circle(
+                Point(x - bw/2 + bh/2, y + bh*2),
+                bcir)
+        admin_ci.setOutline('white')
+        admin_ci.setFill('white')
+        # Create Button
         create = View.Button(
-                Point(View.width - 300, 700),
+                Point(x2, View.height - buffer - 25),
                 200,
-                50, 
-                'Create', 
-                'white', 
-                'black',
-                View.highlight, 
-                'black',
+                50,
+                'Create User',
+                'white',
+                'white',
+                View.highlight,
+                View.highlight,
                 'black')
         create.label.setSize(20)
 
-        View.components['create_user'].objects['panel'] = panel
         View.components['create_user'].objects['title'] = title
         View.components['create_user'].objects['idt'] = idt
         View.components['create_user'].objects['passt'] = passt
+        View.components['create_user'].objects['typet'] = typet
         View.components['create_user'].objects['ide'] = ide
         View.components['create_user'].objects['passe'] = passe
-        View.components['create_user'].buttons['quit'] = quit
+        View.components['create_user'].buttons['student'] = student
+        View.components['create_user'].objects['student_co'] = student_co
+        View.components['create_user'].objects['student_ci'] = student_ci
+        View.components['create_user'].buttons['teacher'] = teacher
+        View.components['create_user'].objects['teacher_co'] = teacher_co
+        View.components['create_user'].objects['teacher_ci'] = teacher_ci
+        View.components['create_user'].buttons['admin'] = admin
+        View.components['create_user'].objects['admin_co'] = admin_co
+        View.components['create_user'].objects['admin_ci'] = admin_ci
         View.components['create_user'].buttons['create'] = create
 
-        panel.draw(View.graph_win)
         title.draw(View.graph_win)
         idt.draw(View.graph_win)
         passt.draw(View.graph_win)
+        typet.draw(View.graph_win)
         ide.draw(View.graph_win)
         passe.draw(View.graph_win)
-        quit.draw(View.graph_win)
+        student.draw(View.graph_win)
+        student_co.draw(View.graph_win)
+        student_ci.draw(View.graph_win)
+        teacher.draw(View.graph_win)
+        teacher_co.draw(View.graph_win)
+        teacher_ci.draw(View.graph_win)
+        admin.draw(View.graph_win)
+        admin_co.draw(View.graph_win)
+        admin_ci.draw(View.graph_win)
         create.draw(View.graph_win)
 
     @staticmethod
@@ -829,21 +1088,59 @@ if __name__ == '__main__':
 
     View.erase('topbar_dropdown')
     View.erase('abacus')
-    View.draw_tutorial(False, False, 
-            'Welcome students! Behold--the UVBacus! \nThis is an interactive abacus that is a great way to expand your math skills in a fun and exciting way. \nIt is a whole lot of fun being able to use an abacus and this tutorial will teach you how to do addition and subtraction using the exchange method. The abacus will surely make math fun and will provide a neat way to learn the math!',
+    View.erase('topbar')
+    View.draw_topbar('Andrew', 'Tutorial')
+    View.draw_tutorial(
+            'Welcome students! Behold--the UVBacus! \n\nThis is an interactive abacus that is a great way to expand your math skills in a fun and exciting way. It is a whole lot of fun being able to use an abacus and this tutorial will teach you how to do addition and subtraction using the exchange method. \n\nThe abacus will surely make math fun and will provide a neat way to learn the math!',
+            '1',
+            False,
+            True, 
             0,
             0,
-            0,
-            400,
-            400,
-            200,
-            7)
+            1,
+            0.5,
+            0.7,
+            0.3,
+            13)
 
     while(not View.mouse_clicked()):
         pass
 
-    View.erase('topbar')
     View.erase('tutorial')
+    View.draw_tutorial(
+            'Bead Placement:\n\nThe abacus used in the UVBacus is called a 5:2 abacus. That means that there are 5 beads on the bottom and 2 beads on the top. The abacus has a wall separating the 5 beads on the bottom and the 2 beads on the top.',
+            '3',
+            True,
+            True, 
+            0,
+            0,
+            0.65,
+            0.8,
+            0.5,
+            0.85,
+            1)
+
+    while(not View.mouse_clicked()):
+        pass
+
+    View.erase('tutorial')
+    View.erase('topbar')
+    View.draw_topbar('Andrew', 'Admin Settings - Create User')
+    View.draw_create_class()
+
+    while(not View.mouse_clicked()):
+        pass
+
+    View.erase('create_class')
+    View.erase('topbar')
+    View.draw_topbar('Andrew', 'Admin Settings - Create User')
+    View.draw_create_user()
+
+    while(not View.mouse_clicked()):
+        pass
+
+    View.erase('create_user')
+    View.erase('topbar')
 
     while(not View.mouse_clicked()):
         pass
