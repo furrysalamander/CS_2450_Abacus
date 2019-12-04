@@ -6,7 +6,6 @@
 # ===============================================================
 
 
-
 # Ensure access to lib folder
 import sys
 sys.path.insert(1, '../lib')
@@ -251,7 +250,7 @@ class View(object):
         image.move(image_x, image_y)
         # Text
         textobj = Text(
-                Point(ix1 + text_x, iy1 + text_y),
+                Point(ix1 + text_x*width, iy1 + text_y*height),
                 text)
         textobj.setSize(19)
         textobj.config['anchor'] = 'nw'
@@ -514,7 +513,7 @@ class View(object):
     @staticmethod
     def draw_create_class():
         buffer = 150
-        text_width = 250
+        text_width = 300
         row_height = 70
         entry_width = 400
         x1, x2 = buffer, buffer + text_width
@@ -567,7 +566,7 @@ class View(object):
         # Create Button
         create = View.Button(
                 Point(x2, View.height - buffer - 25),
-                200,
+                250,
                 50,
                 'Create New Class',
                 'white',
@@ -583,7 +582,7 @@ class View(object):
         View.components['create_class'].objects['teachert'] = teachert
         View.components['create_class'].objects['ide'] = ide
         View.components['create_class'].objects['namee'] = namee
-        View.components['create_class'].buttons['teachere'] = teachere
+        View.components['create_class'].objects['teachere'] = teachere
         View.components['create_class'].buttons['create'] = create
 
         title.draw(View.graph_win)
@@ -598,7 +597,7 @@ class View(object):
     @staticmethod
     def draw_create_user():
         buffer = 150
-        text_width = 250
+        text_width = 300
         row_height = 70
         entry_width = 400
         x1, x2 = buffer, buffer + text_width
@@ -620,36 +619,47 @@ class View(object):
         title.setSize(30)
         title.setTextColor('white')
         title.config['anchor'] = 'w'
-        idt = Text(
+        namet = Text(
                 Point(x1, y1 + row_height),
+                'Name:')
+        namet.setSize(20)
+        namet.setTextColor('white')
+        namet.config['anchor'] = 'w'
+        idt = Text(
+                Point(x1, y1 + row_height*2),
                 'User ID:')
         idt.setSize(20)
         idt.setTextColor('white')
         idt.config['anchor'] = 'w'
         passt = Text(
-                Point(x1, y1 + row_height*2),
+                Point(x1, y1 + row_height*3),
                 'Temp Password:')
         passt.setSize(20)
         passt.setTextColor('white')
         passt.config['anchor'] = 'w'
         typet = Text(
-                Point(x1, y1 + row_height*3),
+                Point(x1, y1 + row_height*4),
                 'User Type:')
         typet.setSize(20)
         typet.setTextColor('white')
         typet.config['anchor'] = 'w'
-        ide = Entry(
+        namee = Entry(
                 Point(x2 + entry_width/2, y1 + row_height),
+                25)
+        namee.setSize(20)
+        namee.setFill('white')
+        ide = Entry(
+                Point(x2 + entry_width/2, y1 + row_height*2),
                 25)
         ide.setSize(20)
         ide.setFill('white')
         passe = Entry(
-                Point(x2 + entry_width/2, y1 + row_height*2),
+                Point(x2 + entry_width/2, y1 + row_height*3),
                 25)
         passe.setSize(20)
         passe.setFill('white')
         # Student, Teacher, Admin - buttons
-        x, y = x2 + bw/2, y1 + row_height*3
+        x, y = x2 + bw/2, y1 + row_height*4
         student = View.Button(
                 Point(x, y),
                 bw,
@@ -671,8 +681,8 @@ class View(object):
         student_ci = Circle(
                 Point(x - bw/2 + bh/2, y),
                 bcir)
-        student_ci.setOutline('black')
-        student_ci.setFill('black')
+        student_ci.setOutline('white')
+        student_ci.setFill('white')
         teacher = View.Button(
                 Point(x, y + bh),
                 bw,
@@ -722,7 +732,7 @@ class View(object):
         # Create Button
         create = View.Button(
                 Point(x2, View.height - buffer - 25),
-                200,
+                250,
                 50,
                 'Create User',
                 'white',
@@ -733,9 +743,11 @@ class View(object):
         create.label.setSize(20)
 
         View.components['create_user'].objects['title'] = title
+        View.components['create_user'].objects['namet'] = namet
         View.components['create_user'].objects['idt'] = idt
         View.components['create_user'].objects['passt'] = passt
         View.components['create_user'].objects['typet'] = typet
+        View.components['create_user'].objects['namee'] = namee
         View.components['create_user'].objects['ide'] = ide
         View.components['create_user'].objects['passe'] = passe
         View.components['create_user'].buttons['student'] = student
@@ -750,9 +762,11 @@ class View(object):
         View.components['create_user'].buttons['create'] = create
 
         title.draw(View.graph_win)
+        namet.draw(View.graph_win)
         idt.draw(View.graph_win)
         passt.draw(View.graph_win)
         typet.draw(View.graph_win)
+        namee.draw(View.graph_win)
         ide.draw(View.graph_win)
         passe.draw(View.graph_win)
         student.draw(View.graph_win)
@@ -1045,11 +1059,11 @@ class View(object):
     
     @staticmethod
     def erase(name):
-        if(View.components[name]):
-            print('Erasing component "{}"'.format(name))
+        if(name in View.components.keys() and View.components[name]):
+            #print('Erasing component "{}"'.format(name))
             old = list()
             for s in View.components[name].sub:
-                print('  Found sub-component "{}"'.format(s))
+                #print('  Found sub-component "{}"'.format(s))
                 old.append(s)
             View.components[name].sub.clear()
             for s in old:
